@@ -49,7 +49,9 @@ import time
 import math
 
 mic=10**(-12)
+contor=0
 def my_tan(x,e):
+    global contor
     f=0
     if f==0:
         f=mic
@@ -57,44 +59,62 @@ def my_tan(x,e):
     d=0
     j=1
     b=1
+    c_anterior=c
+    d_anterior=d
+    f_anterior=f
+    d=b+x*d_anterior
+    if d==0:
+        d=mic
+    c=b+(x/c_anterior)
+    if c==0:
+        c=mic
+    d=1/d
     delta=c*d
+    f=delta* f_anterior
+    b=b+2
+    contor=contor+1
+    j=j+1
     while abs(delta-1)>=e:
         c_anterior=c
         d_anterior=d
         f_anterior=f
-        if j==1:
-            d=b+x*d_anterior
-        else:
-            d=b+(-x**2)*d_anterior
+        d=b+(-1*(x**2)*d_anterior)
         if d==0:
             d=mic
-        if j==1:
-            c=b+(x/c_anterior)
-        else:
-            c=b+((-x**2)/c_anterior)
+        c=b+(-1*(x**2)/c_anterior)
         if c==0:
             c=mic
         d=1/d
         delta=c*d
         f=delta* f_anterior
         b=b+2
+        contor=contor+1
         j=j+1
     return f
 
 def my_tan_2(x):
+    caz=0
+    if x>=(np.pi)/4 and x<(np.pi)/2:
+        x=(np.pi)/2-x
+        caz=1
+    elif x>(-1)*(np.pi)/2 and x<=(-1)*(np.pi)/4:
+        caz=2
     c1 =  0.33333333333333333
     c2 =0.133333333333333333
     c3= 0.053968253968254
     c4=0.0218694885361552
     x_2=x*x
     x_3=x_2*x
-    x_4=x_3*x
-    x_5=x_4*x
-    x_6=x_5*x
-    x_7=x_6*x
-    x_8=x_7*x
-    x_9=x_8*x
-    return x+ (c1* x_3 ) + ( c2 * x_5 ) + ( c3 * x_7 ) + ( c4 * x_9 )
+    x_5=x_2*x_3
+    x_7=x_5*x_2
+    x_9=x_7*x_2
+    if caz==0:
+        return x+ (c1* x_3 ) + ( c2 * x_5 ) + ( c3 * x_7 ) + ( c4 * x_9 )
+    elif caz==1:
+        return 1/(x+ (c1* x_3 ) + ( c2 * x_5 ) + ( c3 * x_7 ) + ( c4 * x_9 ))
+    elif caz==2:
+        return -1/(x+ (c1* x_3 ) + ( c2 * x_5 ) + ( c3 * x_7 ) + ( c4 * x_9 ))
+    
 
 vector_nr=np.linspace(-np.pi/2+mic,np.pi/2-mic,1000)
 timp_initial=time.time()
@@ -118,7 +138,7 @@ for nr in vector_nr:
     timp_initial=timp_curent
 
     print('Diferenta timp calcul ', abs(timp_trecut_1-timp_trecut_2))
-
+print(contor)
 error=0.1
 y=[my_tan(x_value,error) for x_value in vector_nr]
 fig = go.Figure(data=go.Scatter(x=vector_nr, y=y, name="lentz method"))
