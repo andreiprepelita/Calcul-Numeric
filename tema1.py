@@ -43,6 +43,7 @@ print(f"b={c}")
 
 #Exercitiul 3
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import numpy as np
 import time
 import math
@@ -100,7 +101,7 @@ timp_initial=time.time()
 for nr in vector_nr:
     print("Pentru nr:",nr)
     my_tan1=my_tan(nr,10**(-1))
-    tangenta_x=math.tan(nr)
+    tangenta_x=np.tan(nr)
     print("Valoarea tangentei implementata de biblioteca:",tangenta_x)
     print("Metoda Lentz:",my_tan1)
     timp_curent=time.time()
@@ -118,7 +119,17 @@ for nr in vector_nr:
 
     print('Diferenta timp calcul ', abs(timp_trecut_1-timp_trecut_2))
 
+error=0.1
+y=[my_tan(x_value,error) for x_value in vector_nr]
+fig = go.Figure(data=go.Scatter(x=vector_nr, y=y, name="lentz method"))
+ 
+y = [np.tan(x_value) for x_value in vector_nr]
+fig.add_trace(go.Scatter(x=vector_nr, y=y, name="numpy tan method"))
+fig.show()
 
-plt.plot(vector_nr, np.tan(vector_nr))
-plt.ylim(-10, 10)
-plt.show()
+y=[my_tan_2(x_value) for x_value in vector_nr]
+fig = go.Figure(data=go.Scatter(x=vector_nr, y=y, name="Metoda polinoamelor"))
+ 
+y = [np.tan(x_value) for x_value in vector_nr]
+fig.add_trace(go.Scatter(x=vector_nr, y=y, name="numpy tan method"))
+fig.show()
