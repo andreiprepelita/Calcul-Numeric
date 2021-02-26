@@ -49,9 +49,7 @@ import time
 import math
 
 mic=10**(-12)
-contor=0
 def my_tan(x,e):
-    global contor
     f=0
     if f==0:
         f=mic
@@ -72,7 +70,6 @@ def my_tan(x,e):
     delta=c*d
     f=delta* f_anterior
     b=b+2
-    contor=contor+1
     j=j+1
     while abs(delta-1)>=e:
         c_anterior=c
@@ -88,7 +85,6 @@ def my_tan(x,e):
         delta=c*d
         f=delta* f_anterior
         b=b+2
-        contor=contor+1
         j=j+1
     return f
 
@@ -98,6 +94,7 @@ def my_tan_2(x):
         x=(np.pi)/2-x
         caz=1
     elif x>(-1)*(np.pi)/2 and x<=(-1)*(np.pi)/4:
+        x=(np.pi)/2-(x*(-1))
         caz=2
     c1 =  0.33333333333333333
     c2 =0.133333333333333333
@@ -114,13 +111,28 @@ def my_tan_2(x):
         return 1/(x+ (c1* x_3 ) + ( c2 * x_5 ) + ( c3 * x_7 ) + ( c4 * x_9 ))
     elif caz==2:
         return -1/(x+ (c1* x_3 ) + ( c2 * x_5 ) + ( c3 * x_7 ) + ( c4 * x_9 ))
-    
 
-vector_nr=np.linspace(-np.pi/2+mic,np.pi/2-mic,1000)
+def transformare_x(x):
+    if x>=0:
+        argument_x=x%np.pi #folosesc impartirea cu rest la pi
+        coeficient=1
+    elif x<0:
+        x=x*(-1)
+        argument_x=x%np.pi #folosesc impartirea cu rest la pi+antisimetrie tg(x)=-tg(-x)
+        coeficient=-1
+    return argument_x,coeficient
+
+
+# vector_nr=np.linspace(-np.pi/2+mic,np.pi/2-mic,1000)
+vector_nr=np.linspace(-np.pi*5+mic,np.pi*5,1000)
 timp_initial=time.time()
 for nr in vector_nr:
     print("Pentru nr:",nr)
-    my_tan1=my_tan(nr,10**(-1))
+    tupla_Transformare_x=transformare_x(nr)
+    if tupla_Transformare_x[0]==np.pi/2:
+        my_tan1=np.tan(np.pi/2)
+    else:
+        my_tan1=my_tan(tupla_Transformare_x[0],10**(-1))*tupla_Transformare_x[1]
     tangenta_x=np.tan(nr)
     print("Valoarea tangentei implementata de biblioteca:",tangenta_x)
     print("Metoda Lentz:",my_tan1)
@@ -129,7 +141,10 @@ for nr in vector_nr:
     print("Timp trecut pentru metoda Lentz: ",timp_trecut_1)
     print("Eroarea de calcul intre tan(x)-tangenta calculata prin metoda Lentz:",abs(tangenta_x-my_tan1))
     timp_initial=timp_curent
-    my_tan2 = my_tan_2(nr)
+    if tupla_Transformare_x[0]==np.pi/2:
+        my_tan2=np.tan(np.pi/2)
+    else:
+        my_tan2 = my_tan_2(tupla_Transformare_x[0])*tupla_Transformare_x[1]
     print('Metoda MacLaurin:',my_tan2)
     timp_curent = time.time()
     timp_trecut_2=timp_curent - timp_initial
@@ -138,7 +153,7 @@ for nr in vector_nr:
     timp_initial=timp_curent
 
     print('Diferenta timp calcul ', abs(timp_trecut_1-timp_trecut_2))
-print(contor)
+
 error=0.1
 y=[my_tan(x_value,error) for x_value in vector_nr]
 fig = go.Figure(data=go.Scatter(x=vector_nr, y=y, name="lentz method"))
