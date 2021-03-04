@@ -18,9 +18,13 @@ def preluare_date_csv(cale,n):
             A_intermediar.append(linie)
     A=np.array(A_intermediar) #matricea sistemului simetrica si strict pozitiva
     b=np.array(b_intermediar) #vectorul termenilor liberi
-    return A,b
+    d=np.array([])
+    for i in range(0,len(A)):
+        d=np.append(d,A[i][i])
 
-A,b=preluare_date_csv("date.csv",3)
+    return A,b,d
+
+A,b,d=preluare_date_csv("date.csv",3)
 epsilon=pow(10,-5)
 def citire_data_tastatura():
     n=int(input("Dati dimensiunea matricii: "))
@@ -46,41 +50,33 @@ def generare_matrice(n):
                 A_generat[j][i]=A_generat[i][j]
     return A_generat
 
-#############################################################
-def descompunere_Cholesky(A):
-    L=np.full((3,3),0.0)
-    for i in range(0,len(A)):
-        for j in range(i,len(A)):
+def descompunere_Cholesky_matrice_modificata(A_initial):
+    
+    for i in range(0,len(A_initial)):
+        for j in range(i,len(A_initial)):
             if i==j:
                 valSuma=0
                 for k in range(0,i):
-                    valSuma=valSuma+pow(L[i][k],2)
-                L[i][j]=math.sqrt(A[i][j]-valSuma)
+                    valSuma=valSuma+pow(A_initial[i][k],2)
+                A_initial[i][j]=math.sqrt(d[i]-valSuma)
             else:
                 valSuma=0
                 for k in range(0,i):
-                    valSuma=valSuma+L[j][k]*L[i][k]
-                if math.fabs(L[i][i])>epsilon:
-                    L[j][i]=(A[j][i]-valSuma)/L[i][i]
+                    valSuma=valSuma+A_initial[j][k]*A_initial[i][k]
+                if math.fabs(A_initial[i][i])>epsilon:
+                    A_initial[j][i]=(A_initial[j][i]-valSuma)/A_initial[i][i]
                 else:
                     print("Nu se poate face impartirea")
-    L_transpus=np.transpose(L)
-    return L,L_transpus
-
+    return A_initial
 def validare_descompunere_Cholesky(A,L,L_transpus):
     print(np.linalg.norm(A-L@L_transpus))
-# print(A)
-# print(b)
-
-def calculare_determinat_matrice(L,n):
-    det_A=1
-    for i in range(0,n):
-        det_A=L[i][i]*det_A
-    return det_A*det_A
-
 def validare_determinant(A,det_A):
-    np.linalg.norm(np.linalg.det(A) - det_A)
-L,L_transpus=descompunere_Cholesky(A)
+    print(np.linalg.norm(np.linalg.det(A) - det_A))
+def calculare_determinat_matrice(A):
+    det_A=1
+    for i in range(0,len(A)):
+        det_A=A[i][i]*det_A
+    return det_A*det_A
 
 def sisteme_liniare_metoda_substitutiei(L,b):
     y_star=np.array([])
@@ -99,60 +95,87 @@ def sisteme_liniare_inversa_metodei_substitutiei(L_transpus,y):
     for i in range(len(L_transpus)-1,-1,-1):
         valSuma=0
         for j in range(i+1,len(L_transpus)):
-            valSuma=valSuma+L_transpus[i][j]*x_star[j]
+            valSuma=valSuma+L_transpus[j][i]*x_star[j]
         if math.fabs(L_transpus[i][i])>epsilon:
             x_star[i]=(y[i]-valSuma)/L_transpus[i][i]
         else:
             print("Nu se poate face impartirea")
     return x_star
-
 def verificare_solutie_sistem(A,x_star,b):
     print(np.linalg.norm(A@x_star-b))
 
+def returnare_matrice_L(A):
+    for i in range(0,len(A)):
+        for j in range(0,len(A)):
+            if j>i:
+                A[i][j]=0.0
+    return A
+def returnare_matrice_L_transpus(A):
+    for i in range(0,len(A)):
+        for j in range(0,len(A)):
+            if i>j:
+                A[i][j]=0.0
+            else:
+                A[i][j]=A[j][i]
+    return A
+def returnare_matrice_initiala(A):
+    for i in range(0,len(A)):
+        for j in range(0,len(A)):
+            if i==j:
+                A[i][j]=d[i]
+            elif i>j:
+                A[i][j]=A[j][i]
+    return A
+
+
+def afisare_matrice_L(A):
+    for i in range(0,len(A)):
+        for j in range(0,len(A)):
+            if j>i:
+                print("0.0",end=" ")
+            else:
+                print(A[i][j],end=" ")
+        print(end="\n")
+def afisare_matrice_L_transpus(A):
+    for i in range(0,len(A)):
+        for j in range(0,len(A)):
+            if i>j:
+                print("0.0",end=" ")
+            else:
+                print(A[j][i],end=" ")
+        print(end="\n")
+def afisare_matrice_initiala_A(A):
+    for i in range(0,len(A)):
+        for j in range(0,len(A)):
+            if i==j:
+                print(d[i],end=" ")
+            elif i<j:
+                print(A[i][j],end=" ")
+            else:
+                print(A[j][i],end=" ")
+        print(end="\n") 
 def descompunere_LU(A):
     p,l,u=lu(A)
     return l,u
-def calculare_inversa_matricii(L,L_transpus):
-    matricea_inversa=np.full((len(L),len(L)),0.0)
-    for i in range(0,len(L)):
+def calculare_inversa_matricii(A):
+    matricea_inversa=np.full((len(A),len(A)),0.0)
+    for i in range(0,len(A)):
         matricea_identitate=np.full(3,0.0)
         matricea_identitate[i]=1
-        y_star=sisteme_liniare_metoda_substitutiei(L,matricea_identitate)
-        x_star=sisteme_liniare_inversa_metodei_substitutiei(L_transpus,y_star)
-        for j in range(0,len(L)):
+        y_star=sisteme_liniare_metoda_substitutiei(A,matricea_identitate)
+        x_star=sisteme_liniare_inversa_metodei_substitutiei(A,y_star)
+        for j in range(0,len(A)):
             matricea_inversa[j][i]=x_star[j]
     return matricea_inversa
 def validare_inversa_cu_matricea_identitate(A,A_inversat):
     print(np.linalg.norm(A @ A_inversat - np.eye(len(A), len(A))))
+
 def validare_inversa_cu_inversa_din_alta_biblioteca(A,A_inversat):
     print(np.linalg.norm(A_inversat - np.linalg.inv(A)))
+A_modificat=descompunere_Cholesky_matrice_modificata(A.copy())
 
-print(L)
-print(L_transpus)
-validare_descompunere_Cholesky(A,L,L_transpus)
-det_A=calculare_determinat_matrice(L,3)
-print(det_A)
-y_star=sisteme_liniare_metoda_substitutiei(L,b)
-print(y_star)
-x_star=sisteme_liniare_inversa_metodei_substitutiei(L_transpus,y_star)
-print(x_star)
-verificare_solutie_sistem(A,x_star,b)
-l,u=descompunere_LU(A)
-print(l)
-print(u)
-validare_descompunere_Cholesky(A,l,u)
-y_star_lu=sisteme_liniare_metoda_substitutiei(l,b)
-print(y_star)
-x_star_lu=sisteme_liniare_inversa_metodei_substitutiei(u,y_star_lu)
-print(x_star_lu)
-verificare_solutie_sistem(A,x_star_lu,b)
-A_inversa=calculare_inversa_matricii(L,L_transpus)
-print(A_inversa)
-validare_inversa_cu_matricea_identitate(A,A_inversa)
-validare_inversa_cu_inversa_din_alta_biblioteca(A,A_inversa)
-#################################################################
+#######################################
 #BONUS
-
 def stocare_matrice_a(A):
     A_limitat=np.array([])
     for i in range(0,len(A)):
@@ -215,12 +238,54 @@ def sisteme_liniare_inversa_metodei_substitutiei_bonus(L_transpus,y,n):
         else:
             print("Nu se poate face impartirea")
     return x_star
-# epsilon_tast,A_tasta,b_tast=citire_data_tastatura()
-# print(A_tasta)
-# print(b_tast)
-# A_generat=generare_matrice(5)
-# print(A_generat)
-L_bonus,L_transpus_bonus=descompunere_Cholesky_bonus(A_limitat,3)
+#######################################################
+print("Matricea A modificata cu descompunerea Cholesky")
+print(A_modificat)
+print("Matricea L in descompunerea Cholesky")
+afisare_matrice_L(A_modificat.copy())
+print("Matricea L transpusa in descompunerea Cholesky ")
+afisare_matrice_L_transpus(A_modificat.copy())
+print("Validarea descompunerii Cholesky calculand norma diferentei dintre A si LL_transpus")
+L=returnare_matrice_L(A_modificat.copy())
+L_transpus=returnare_matrice_L_transpus(A_modificat.copy())
+A_init=returnare_matrice_initiala(A_modificat.copy())
+validare_descompunere_Cholesky(A_init,L,L_transpus)
+print("Putem valida cu varianta determinantului din numpy")
+det_A=calculare_determinat_matrice(A_modificat)
+print("Valoare determinant matrice A:det(L)^^2: ",det_A)
+validare_determinant(A_init,det_A)
+print("Matricea initiala")
+afisare_matrice_initiala_A(A_modificat.copy())
+y_star=sisteme_liniare_metoda_substitutiei(A_modificat,b)
+x_star=sisteme_liniare_inversa_metodei_substitutiei(A_modificat,y_star)
+print("Solutia Ly=b este: ")
+print(y_star)
+print("Solutia L_transpus.x=y este:")
+print(x_star)
+print("Verificarea solutiei prin afisarea normei: ")
+verificare_solutie_sistem(A_init,x_star,b)
+print("Afisarea descompunerii LU a matricii A: ")
+l,u=descompunere_LU(A_init)
+print("Matricea inferior triunghiulara L")
+print(l)
+print("Matricea superior triunghiulara L")
+print(u)
+print("Solutia x_star prin descompunerea LU din biblioteca:")
+x_star_lu=np.linalg.solve(A_init,b)
+print(x_star_lu)
+print("Inversa matricei A: ")
+A_inversat=calculare_inversa_matricii(A_modificat.copy())
+print(A_inversat)
+print("Putem valida calculand norma A*A^^-1-In")
+validare_inversa_cu_matricea_identitate(A_init,A_inversat)
+print("De asemenea putem valida si cu versiunea de calculare a inversei din numpy:")
+validare_inversa_cu_inversa_din_alta_biblioteca(A_init,A_inversat)
+
+
+###############
+#BONUS
+A_limitat=stocare_matrice_a(A)
+L_bonus,L_transpus_bonus=descompunere_Cholesky_bonus(A_limitat.copy(),3)
 print(L_bonus)
 print(L_transpus_bonus)
 y_star_bonus=sisteme_liniare_metoda_substitutiei_bonus(L_bonus,b,3)
