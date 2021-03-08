@@ -49,7 +49,15 @@ def generare_matrice(n):
             if i!=j:
                 A_generat[j][i]=A_generat[i][j]
     return A_generat
-
+A=generare_matrice(10)
+b=np.random.rand(10)
+def validare_matrice_simetrica(A):
+    for i in range(0,len(A)):
+        for j in range(i,len(A)):
+            if A[j][i]!=A[i][j]:
+                return False
+    return True
+print(validare_matrice_simetrica(A.copy()))
 def descompunere_Cholesky_matrice_modificata(A_initial):
     
     for i in range(0,len(A_initial)):
@@ -239,47 +247,48 @@ def sisteme_liniare_inversa_metodei_substitutiei_bonus(L_transpus,y,n):
             print("Nu se poate face impartirea")
     return x_star
 #######################################################
-print("Matricea A modificata cu descompunerea Cholesky")
-print(A_modificat)
-print("Matricea L in descompunerea Cholesky")
-afisare_matrice_L(A_modificat.copy())
-print("Matricea L transpusa in descompunerea Cholesky ")
-afisare_matrice_L_transpus(A_modificat.copy())
-print("Validarea descompunerii Cholesky calculand norma diferentei dintre A si LL_transpus")
-L=returnare_matrice_L(A_modificat.copy())
-L_transpus=returnare_matrice_L_transpus(A_modificat.copy())
-A_init=returnare_matrice_initiala(A_modificat.copy())
-validare_descompunere_Cholesky(A_init,L,L_transpus)
-print("Putem valida cu varianta determinantului din numpy")
-det_A=calculare_determinat_matrice(A_modificat)
-print("Valoare determinant matrice A:det(L)^^2: ",det_A)
-validare_determinant(A_init,det_A)
-print("Matricea initiala")
-afisare_matrice_initiala_A(A_modificat.copy())
-y_star=sisteme_liniare_metoda_substitutiei(A_modificat,b)
-x_star=sisteme_liniare_inversa_metodei_substitutiei(A_modificat,y_star)
-print("Solutia Ly=b este: ")
-print(y_star)
-print("Solutia L_transpus.x=y este:")
-print(x_star)
-print("Verificarea solutiei prin afisarea normei: ")
-verificare_solutie_sistem(A_init,x_star,b)
-print("Afisarea descompunerii LU a matricii A: ")
-l,u=descompunere_LU(A_init)
-print("Matricea inferior triunghiulara L")
-print(l)
-print("Matricea superior triunghiulara L")
-print(u)
-print("Solutia x_star prin descompunerea LU din biblioteca:")
-x_star_lu=np.linalg.solve(A_init,b)
-print(x_star_lu)
-print("Inversa matricei A: ")
-A_inversat=calculare_inversa_matricii(A_modificat.copy())
-print(A_inversat)
-print("Putem valida calculand norma A*A^^-1-In")
-validare_inversa_cu_matricea_identitate(A_init,A_inversat)
-print("De asemenea putem valida si cu versiunea de calculare a inversei din numpy:")
-validare_inversa_cu_inversa_din_alta_biblioteca(A_init,A_inversat)
+if validare_matrice_simetrica(A.copy()):
+    print("Matricea A modificata cu descompunerea Cholesky")
+    print(A_modificat)
+    print("Matricea L in descompunerea Cholesky")
+    afisare_matrice_L(A_modificat.copy())
+    print("Matricea L transpusa in descompunerea Cholesky ")
+    afisare_matrice_L_transpus(A_modificat.copy())
+    print("Validarea descompunerii Cholesky calculand norma diferentei dintre A si LL_transpus")
+    L=returnare_matrice_L(A_modificat.copy())
+    L_transpus=returnare_matrice_L_transpus(A_modificat.copy())
+    A_init=returnare_matrice_initiala(A_modificat.copy())
+    validare_descompunere_Cholesky(A_init,L,L_transpus)
+    print("Putem valida cu varianta determinantului din numpy")
+    det_A=calculare_determinat_matrice(A_modificat)
+    print("Valoare determinant matrice A:det(L)^^2: ",det_A)
+    validare_determinant(A_init,det_A)
+    print("Matricea initiala")
+    afisare_matrice_initiala_A(A_modificat.copy())
+    y_star=sisteme_liniare_metoda_substitutiei(A_modificat,b)
+    x_star=sisteme_liniare_inversa_metodei_substitutiei(A_modificat,y_star)
+    print("Solutia Ly=b este: ")
+    print(y_star)
+    print("Solutia L_transpus.x=y este:")
+    print(x_star)
+    print("Verificarea solutiei prin afisarea normei: ")
+    verificare_solutie_sistem(A_init,x_star,b)
+    print("Afisarea descompunerii LU a matricii A: ")
+    l,u=descompunere_LU(A_init)
+    print("Matricea inferior triunghiulara L")
+    print(l)
+    print("Matricea superior triunghiulara L")
+    print(u)
+    print("Solutia x_star prin descompunerea LU din biblioteca:")
+    x_star_lu=np.linalg.solve(A_init,b)
+    print(x_star_lu)
+    print("Inversa matricei A: ")
+    A_inversat=calculare_inversa_matricii(A_modificat.copy())
+    print(A_inversat)
+    print("Putem valida calculand norma A*A^^-1-In")
+    validare_inversa_cu_matricea_identitate(A_init,A_inversat)
+    print("De asemenea putem valida si cu versiunea de calculare a inversei din numpy:")
+    validare_inversa_cu_inversa_din_alta_biblioteca(A_init,A_inversat)
 
 
 ###############
