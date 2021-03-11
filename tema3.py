@@ -1,5 +1,5 @@
 import numpy as np
-
+import copy
 class matrice_rara:
     def __init__(self):
         self.n=None
@@ -27,7 +27,7 @@ class matrice_rara:
                     valoare_linie[coloana]=valoare
                     self.dictionar[linie]=valoare_linie
     def adunare_matrici(self,a,b,c,p,q):
-        adunare_matrici=self.dictionar.copy()
+        adunare_matrici=copy.deepcopy(self.dictionar)
         for i in range(0,self.n-1):
             if i in adunare_matrici.keys():
                 valoare_linie_i=adunare_matrici[i]
@@ -64,6 +64,29 @@ class matrice_rara:
             adunare_matrici[self.n-1]=dict_linia_n_minus_1
 
         return adunare_matrici
+    def operatia_de_inmultire(self,a,b,c,p,q):
+        inmultire_matrici=dict()
+        for i in range(0,self.n):
+            for j in range(0,self.n):
+                suma=0.0
+                if i in self.dictionar.keys() and j in self.dictionar[i].keys():
+                    suma=suma+a[j]*self.dictionar[i][j]
+                if j>=p and i in self.dictionar.keys() and j-p in self.dictionar[i].keys():
+                    suma=suma+b[j-p]*self.dictionar[i][j-p]
+
+                if j<self.n-q and i in self.dictionar.keys() and j+q in self.dictionar[i].keys():
+                    suma=suma+c[j]*self.dictionar[i][j+q]
+                if suma!=0.0:
+                    if i in inmultire_matrici.keys():
+                        valoare_linie=inmultire_matrici[i]
+                        valoare_linie[j]=suma
+                        inmultire_matrici[i]=valoare_linie
+                    else:
+                        valoare_linie={j:suma}
+                        inmultire_matrici[i]=valoare_linie
+        return inmultire_matrici
+                        
+
 
 
 
@@ -103,7 +126,7 @@ def comparare_matrici(A,B,epsilon):
                 valoare_Norma=np.linalg.norm(A[x][x1]-B[x][x1])
                 if valoare_Norma>epsilon:
                     return False
-    except Exception as e:
+    except:
         return False
     return True
 
@@ -118,7 +141,8 @@ A_plus_B=A.adunare_matrici(B.a,B.b,B.c,B.p,B.q)
 A_plus_B_fisier=matrice_rara()
 A_plus_B_fisier.construire_dictionar_prin_cale("aplusb.txt")
 print(comparare_matrici(A_plus_B,A_plus_B_fisier.dictionar,10**(-10)))
-# print(A_plus_B.equals(A_plus_B_fisier.dictionar,10**(-10)))
-# for x,y in A.dictionar.items():
-#     for x1,y1 in y.items():
-#         print("Linie:"+ str(x)+",coloana:"+str(x1)+",valoare:"+str(y1))
+A_ori_B=A.operatia_de_inmultire(B.a,B.b,B.c,B.p,B.q)
+A_ori_B_fisier=matrice_rara()
+A_ori_B_fisier.construire_dictionar_prin_cale("aorib.txt")
+print(A_ori_B[0])
+print(comparare_matrici(A_ori_B,A_ori_B_fisier.dictionar,10**(-10)))
