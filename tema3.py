@@ -19,51 +19,46 @@ class matrice_rara:
                 coloana=int(linieSplitata[2])
                 valoare=float(linieSplitata[0])
                 if linie in self.dictionar.keys():
-                    valoare_linie=self.dictionar[linie]
-                    valoare_linie[coloana]=valoare
-                    self.dictionar[linie]=valoare_linie
+                    if coloana in self.dictionar[linie].keys():
+                        self.dictionar[linie][coloana]=self.dictionar[linie][coloana]+valoare
+                    else:
+                        self.dictionar[linie][coloana]=valoare
                 else:
                     valoare_linie=dict()
                     valoare_linie[coloana]=valoare
                     self.dictionar[linie]=valoare_linie
+
     def adunare_matrici(self,a,b,c,p,q):
         adunare_matrici=copy.deepcopy(self.dictionar)
-        for i in range(0,self.n-1):
-            if i in adunare_matrici.keys():
-                valoare_linie_i=adunare_matrici[i]
-                if i+p in valoare_linie_i.keys():
-                    adunare_matrici[i][i+p]=adunare_matrici[i][i+p]+b[i]
+        for i in range(0,self.n):
+            if i+p<self.n-p: #coloana
+                if i in adunare_matrici.keys():
+                    if i+p in adunare_matrici[i].keys():
+                        adunare_matrici[i][i+p]=adunare_matrici[i][i+p]+b[i]
+                    else:
+                        adunare_matrici[i][i+p]=b[i]
                 else:
-                    adunare_matrici[i][i+p]=b[i]
-            else:
-                adunare_matrici[i][i+p]=b[i]
+                    dictionar={i+p:b[i]}
+                    adunare_matrici[i]=dictionar
             if i in adunare_matrici.keys():
-                valoare_linie_i=adunare_matrici[i]
-                if i in valoare_linie_i.keys():
+                if i in adunare_matrici[i].keys():
                     adunare_matrici[i][i]=adunare_matrici[i][i]+a[i]
                 else:
                     adunare_matrici[i][i]=a[i]
             else:
-                adunare_matrici[i][i]=a[i]
-            if i+q in adunare_matrici.keys():
-                valoare_linie_i_plus_q=adunare_matrici[i+q]
-                if i in valoare_linie_i_plus_q.keys():
-                    adunare_matrici[i+q][i]=adunare_matrici[i+q][i]+c[i]
+                dictionar={i:a[i]}
+                adunare_matrici[i]=dictionar
+            if i+q<self.n: #linie
+                if i+q in adunare_matrici.keys():
+                    if i in adunare_matrici[i+q].keys():
+                        adunare_matrici[i+q][i]=adunare_matrici[i+q][i]+c[i]
+                    else:
+                        adunare_matrici[i+q][i]=c[i]
                 else:
-                    adunare_matrici[i+q][i]=c[i]
-            else:
-                adunare_matrici[i+q][i]=c[i]
-        if self.n-1 in adunare_matrici.keys():
-            valoare_linie_n_minus_1=adunare_matrici[self.n-1]
-            if self.n-1 in valoare_linie_n_minus_1.keys():
-                adunare_matrici[self.n-1][self.n-1]=adunare_matrici[self.n-1][self.n-1]+a[self.n-1]
-            else:
-                adunare_matrici[self.n-1][self.n-1]=a[self.n-1]
-        else:
-            dict_linia_n_minus_1={self.n-1:a[self.n-1]}
-            adunare_matrici[self.n-1]=dict_linia_n_minus_1
-
+                    dictionar={i:c[i]}
+                    adunare_matrici[i+q]=dictionar
         return adunare_matrici
+
     def operatia_de_inmultire(self,a,b,c,p,q):
         inmultire_matrici=dict()
         for i in range(0,self.n):
@@ -88,8 +83,6 @@ class matrice_rara:
                         
 
 
-
-
 class matrice_tridiagoanala_rara:
     def __init__(self):
         self.n=None
@@ -98,6 +91,7 @@ class matrice_tridiagoanala_rara:
         self.a=list()
         self.b=list()
         self.c=list()
+
     def construire_dictionar_prin_cale(self,cale):
         f = open(cale, "r")
         linie=f.readline().strip()
@@ -122,7 +116,7 @@ class matrice_tridiagoanala_rara:
 def comparare_matrici(A,B,epsilon):
     try:
         for x,v in A.items():
-            for x1,v1 in v.items():
+            for x1 in v.keys():
                 valoare_Norma=np.linalg.norm(A[x][x1]-B[x][x1])
                 if valoare_Norma>epsilon:
                     return False
@@ -140,6 +134,7 @@ print(len(B.a),len(B.b),len(B.c))
 A_plus_B=A.adunare_matrici(B.a,B.b,B.c,B.p,B.q)
 A_plus_B_fisier=matrice_rara()
 A_plus_B_fisier.construire_dictionar_prin_cale("aplusb.txt")
+print(A_plus_B[0])
 print(comparare_matrici(A_plus_B,A_plus_B_fisier.dictionar,10**(-10)))
 A_ori_B=A.operatia_de_inmultire(B.a,B.b,B.c,B.p,B.q)
 A_ori_B_fisier=matrice_rara()
